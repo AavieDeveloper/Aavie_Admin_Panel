@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || 'https://aavie-backend.onrender.com'
+const BASE = import.meta.env.VITE_API_BASE || 'https://aavie-backend.onrender.com'
 
 async function req(path, options = {}) {
   const token = localStorage.getItem('adminToken')
