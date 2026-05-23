@@ -1,7 +1,6 @@
 [build]
-  base    = "aavie-admin"
   command = "npm run build"
-  publish = "aavie-admin/dist"
+  publish = "dist"
 
 [[redirects]]
   from   = "/*"
