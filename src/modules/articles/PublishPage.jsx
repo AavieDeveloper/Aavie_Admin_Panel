@@ -654,14 +654,14 @@ This is why **personalised care** matters.`}
               </button>
             </div>
 
-            <div className={styles.apiNote}>
+            {/* <div className={styles.apiNote}>
               <i className="ti ti-info-circle" />
               <span>
                 {isEdit
                   ? 'Calls PUT /api/admin/articles/:id on your Spring Boot backend'
                   : 'Calls POST /api/admin/articles on your Spring Boot backend'}
               </span>
-            </div>
+            </div> */}
 
           </div>
         </form>

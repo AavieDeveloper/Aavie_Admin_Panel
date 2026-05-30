@@ -41,10 +41,14 @@
   border-color: var(--accent) !important;
 }
 
-.tableWrap { overflow-x: auto; }
+.tableWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 .table {
   width: 100%;
+  min-width: 900px;
   border-collapse: collapse;
   table-layout: auto;
   min-width: 700px;

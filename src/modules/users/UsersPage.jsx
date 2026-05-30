@@ -148,6 +148,7 @@ function UserDetailModal({ userId, onClose }) {
                 </div>
                 <div style={gridStyle}>
                   <InfoRow icon="ti-mail"     label="Email"  value={user.email  || '—'} />
+                  <InfoRow icon="ti-phone" label="Mobile" value={user.mobileNumber || '—'} />
                   <InfoRow icon="ti-calendar" label="Age"    value={user.age ? `${user.age} years` : '—'} />
                   <InfoRow icon="ti-map-pin"  label="City"   value={user.city   || '—'} />
                   <InfoRow icon="ti-gender-bigender" label="Gender" value={user.gender || '—'} />
@@ -612,6 +613,8 @@ export default function UsersPage() {
   const [search,        setSearch]        = useState('')
   const [filterStatus,  setFilterStatus]  = useState('all')
   const [selectedUserId, setSelectedUserId] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+const PAGE_SIZE = 10
 
   const { data: statsData } = useUserStats()
 
@@ -626,9 +629,13 @@ export default function UsersPage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const users    = usersData?.users ?? []
-  const filtered = users
-
+const users      = usersData?.users ?? []
+const filtered   = users
+const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+const paginated  = filtered.slice(
+  (currentPage - 1) * PAGE_SIZE,
+  currentPage * PAGE_SIZE
+)
   return (
     <div className={styles.page}>
       <Topbar
@@ -666,7 +673,7 @@ export default function UsersPage() {
                 type="text"
                 placeholder="Search by name, city or email…"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
               />
             </div>
             <div className={styles.filters}>
@@ -674,7 +681,7 @@ export default function UsersPage() {
                 <button
                   key={f}
                   className={[styles.filterBtn, filterStatus === f ? styles.filterActive : ''].join(' ')}
-                  onClick={() => setFilterStatus(f)}
+                  onClick={() => { setFilterStatus(f); setCurrentPage(1); }}
                 >
                   {f === 'all' ? 'All' : f === 'complete' ? 'Complete' : 'Pending'}
                 </button>
@@ -717,18 +724,19 @@ export default function UsersPage() {
                   <thead>
                     <tr>
                       <th style={{ width: 40 }}></th>
-                      <th>Name</th>
-                      <th>Age</th>
-                      <th>City</th>
-                      <th>Email</th>
-                      <th>Prakriti</th>
-                      <th>PCOS type</th>
-                      <th>Joined</th>
-                      <th>Action</th>
+                      <th style={{ minWidth: 120 }}>Name</th>
+<th style={{ minWidth: 50 }}>Age</th>
+<th style={{ minWidth: 100 }}>City</th>
+<th style={{ minWidth: 150 }}>Email</th>
+<th style={{ minWidth: 120 }}>Mobile</th>
+<th style={{ minWidth: 110 }}>Prakriti</th>
+<th style={{ minWidth: 121 }}>PCOS type</th>
+<th style={{ minWidth: 110 }}>Joined</th>
+<th style={{ minWidth: 100 }}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((u) => (
+                    {paginated.map((u) => (
                       <tr key={u.id}>
                         <td>
                           <div className={styles.av}>
@@ -741,6 +749,7 @@ export default function UsersPage() {
                         <td>{u.age   || '—'}</td>
                         <td>{u.city  || '—'}</td>
                         <td className={styles.emailCell}>{u.email || '—'}</td>
+                        <td>{u.mobileNumber || '—'}</td>
                         <td><PrakritiTag value={u.prakritiResult} /></td>
                         <td><PcosTag    value={u.pcosResult}     /></td>
                         <td className={styles.dateCell}>{u.joinedAt || '—'}</td>
@@ -758,7 +767,7 @@ export default function UsersPage() {
                     ))}
                     {filtered.length === 0 && (
                       <tr>
-                        <td colSpan={9}>
+                        <td colSpan={10}>
                           <div className="empty">
                             <i className="ti ti-users-off" />
                             {users.length === 0 ? 'No users found in the database' : 'No users match your search'}
@@ -771,9 +780,62 @@ export default function UsersPage() {
               </div>
 
               <div className={styles.tableFooter}>
-                <span>Showing {filtered.length} of {usersData?.total ?? statsData?.totalUsers ?? 0} users</span>
-                <span style={{ color: 'var(--tx3)' }}>· Live from GET /api/admin/users on Render</span>
-              </div>
+  <span>
+    Showing {((currentPage - 1) * PAGE_SIZE) + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} of {filtered.length} users
+  </span>
+
+  {/* Pagination controls */}
+  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+    {/* Previous button */}
+    <button
+      className="btn btn-sm"
+      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+      disabled={currentPage === 1}
+      style={{ padding: '4px 10px', fontSize: 11 }}
+    >
+      ← Prev
+    </button>
+
+    {/* Page numbers */}
+    {Array.from({ length: totalPages }, (_, i) => i + 1)
+      .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+      .reduce((acc, p, i, arr) => {
+        if (i > 0 && p - arr[i - 1] > 1) acc.push('...')
+        acc.push(p)
+        return acc
+      }, [])
+      .map((p, i) => p === '...' ? (
+        <span key={i} style={{ fontSize: 11, color: 'var(--tx3)', padding: '0 4px' }}>…</span>
+      ) : (
+        <button
+          key={p}
+          className="btn btn-sm"
+          onClick={() => setCurrentPage(p)}
+          style={{
+            padding: '4px 10px', fontSize: 11,
+            background: currentPage === p ? 'var(--accent)' : undefined,
+            color:      currentPage === p ? 'white'         : undefined,
+            borderColor: currentPage === p ? 'var(--accent)' : undefined,
+          }}
+        >
+          {p}
+        </button>
+      ))
+    }
+
+    {/* Next button */}
+    <button
+      className="btn btn-sm"
+      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+      disabled={currentPage === totalPages}
+      style={{ padding: '4px 10px', fontSize: 11 }}
+    >
+      Next →
+    </button>
+  </div>
+
+  {/* <span style={{ color: 'var(--tx3)' }}>· Live from GET /api/admin/users on Render</span> */}
+</div>
             </>
           )}
         </Panel>

@@ -18,8 +18,13 @@ const NAV = [
       { to: '/publish', icon: 'ti-pencil-plus', label: 'Publish new' },
     ],
   },
+  {
+    group: 'Assessments',
+    items: [
+      { to: '/questions', icon: 'ti-list', label: 'Questions' },
+    ],
+  },
 ]
-
 export function Sidebar() {
   const { theme, toggleTheme } = useThemeStore()
   const { adminUser, clearAuth } = useAuthStore()

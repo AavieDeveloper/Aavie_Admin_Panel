@@ -8,6 +8,9 @@ import UsersPage from './modules/users/UsersPage'
 import AssessmentsPage from './modules/users/AssessmentsPage'
 import ArticlesPage from './modules/articles/ArticlesPage'
 import PublishPage from './modules/articles/PublishPage'
+
+import QuestionsPage from './modules/questions/QuestionsPage'
+
 import styles from './App.module.css'
 
 function RequireAuth() {
@@ -46,6 +49,7 @@ export default function App() {
             <Route path="/articles"    element={<ArticlesPage />} />
             <Route path="/publish"     element={<PublishPage />} />
             <Route path="/publish/:id" element={<PublishPage />} />
+            <Route path= "/questions" element={<QuestionsPage /> }/>
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
