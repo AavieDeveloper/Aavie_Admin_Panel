@@ -42,7 +42,16 @@ const PRAKRITI_BREAKDOWN = Object.entries(prakritiRaw)
   }))
 
 // ── PCOS breakdown from API ───────────────────────────────────────────────────
-const PCOS_TYPE_COLORS ={
+const PCOS_TYPE_COLORS = {
+  // New resultType strings (new A1)
+  'Metabolic':                   'sage',
+  'Inflammation-Driven':         'rose',
+  'Stress-Driven':               'accent',
+  'Stress + Inflammation':       'accent',
+  'Stress + Metabolic':          'amber',
+  'Inflammation + Metabolic':    'amber',
+  'Mixed':                       'accent',
+  // Legacy strings (old A1 — kept so existing DB rows still display correctly)
   'Metabolic PCOS':              'sage',
   'Inflammatory PCOS':           'rose',
   'Inflammatory Metabolic PCOS': 'amber',

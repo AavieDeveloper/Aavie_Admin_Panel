@@ -71,7 +71,7 @@ function PcosOptionRow({ opt, index, onChange, onDelete }) {
           </select>
         </div>
         {/* Scores */}
-        {['v', 'p', 'k_', 'hormonal', 'sleep', 'stress', 'pcos'].map(field => (
+        {['v', 'p', 'k_', 'hormonal', 'sleep', 'stress', 'pcos', 'flag'].map(field => (
           <div key={field} className={styles.scoreField}>
             <label>{field}</label>
             <input
@@ -86,20 +86,7 @@ function PcosOptionRow({ opt, index, onChange, onDelete }) {
             />
           </div>
         ))}
-        {/* Importance */}
-        <div className={styles.scoreField}>
-          <label>Importance</label>
-          <select
-            className="field"
-            value={opt.importance || ''}
-            onChange={e => onChange(index, { ...opt, importance: e.target.value || undefined })}
-          >
-            <option value="">—</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
+    
       </div>
       <button className={styles.optDelete} onClick={() => onDelete(index)}>
         <i className="ti ti-trash" />
@@ -120,54 +107,23 @@ function VikritiSingleOptionRow({ opt, index, onChange, onDelete }) {
           onChange={e => onChange(index, { ...opt, t: e.target.value })}
           style={{ gridColumn: '1 / -1' }}
         />
-        {['v', 'p', 'k', 'energy', 'sleep', 'stress', 'metabolic', 'liver'].map(field => (
-          <div key={field} className={styles.scoreField}>
-            <label>{field}</label>
-            <input
-              className="field"
-              type="number"
-              placeholder="0"
-              value={opt.s?.[field] || ''}
-              onChange={e => onChange(index, {
-                ...opt,
-                s: {
-                  ...(opt.s || {}),
-                  [field]: e.target.value === '' ? undefined : Number(e.target.value)
-                }
-              })}
-            />
-          </div>
-        ))}
-      </div>
-      <button className={styles.optDelete} onClick={() => onDelete(index)}>
-        <i className="ti ti-trash" />
-      </button>
-    </div>
-  )
-}
-
-function VikritiMultiOptionRow({ opt, index, onChange, onDelete }) {
-  return (
-    <div className={styles.optRowPcos}>
-      <div className={styles.optNum}>{index + 1}</div>
-      <div className={styles.optFieldsPcos}>
-        <input
-          className="field"
-          placeholder="Option text"
-          value={opt.t || ''}
-          onChange={e => onChange(index, { ...opt, t: e.target.value })}
-          style={{ gridColumn: '1 / -1' }}
-        />
+        {/* Agni type — for Digestive Fire questions */}
         <div className={styles.scoreField}>
-          <label>Key</label>
-          <input
+          <label>Agni</label>
+          <select
             className="field"
-            placeholder="e.g. cold"
-            value={opt.k || ''}
-            onChange={e => onChange(index, { ...opt, k: e.target.value })}
-          />
+            value={opt.agni || ''}
+            onChange={e => onChange(index, { ...opt, agni: e.target.value || undefined })}
+          >
+            <option value="">— none —</option>
+            <option value="sama">sama</option>
+            <option value="vishama">vishama</option>
+            <option value="tikshna">tikshna</option>
+            <option value="manda">manda</option>
+          </select>
         </div>
-        {['v', 'p', 'k_', 'energy', 'sleep', 'stress', 'metabolic', 'liver'].map(field => (
+        {/* Vikriti scores — for Body State questions */}
+        {['vikV', 'vikP', 'vikK'].map(field => (
           <div key={field} className={styles.scoreField}>
             <label>{field}</label>
             <input
@@ -182,6 +138,118 @@ function VikritiMultiOptionRow({ opt, index, onChange, onDelete }) {
             />
           </div>
         ))}
+        {/* vik — balanced fallback string */}
+        <div className={styles.scoreField}>
+          <label>vik</label>
+          <select
+            className="field"
+            value={opt.vik || ''}
+            onChange={e => onChange(index, { ...opt, vik: e.target.value || undefined })}
+          >
+            <option value="">— none —</option>
+            <option value="sama">sama (balanced)</option>
+          </select>
+        </div>
+      </div>
+      <button className={styles.optDelete} onClick={() => onDelete(index)}>
+        <i className="ti ti-trash" />
+      </button>
+    </div>
+  )
+}
+
+
+function VikritiMultiOptionRow({ opt, index, onChange, onDelete }) {
+  return (
+    <div className={styles.optRowPcos}>
+      <div className={styles.optNum}>{index + 1}</div>
+      <div className={styles.optFieldsPcos}>
+        <input
+          className="field"
+          placeholder="Option text"
+          value={opt.t || ''}
+          onChange={e => onChange(index, { ...opt, t: e.target.value })}
+          style={{ gridColumn: '1 / -1' }}
+        />
+        {/* Key */}
+        <div className={styles.scoreField}>
+          <label>Key</label>
+          <input
+            className="field"
+            placeholder="e.g. coat"
+            value={opt.k || ''}
+            onChange={e => onChange(index, { ...opt, k: e.target.value })}
+          />
+        </div>
+        {/* Ama score */}
+        <div className={styles.scoreField}>
+          <label>ama</label>
+          <input
+            className="field"
+            type="number"
+            placeholder="0"
+            value={opt.ama || ''}
+            onChange={e => onChange(index, {
+              ...opt,
+              ama: e.target.value === '' ? undefined : Number(e.target.value)
+            })}
+          />
+        </div>
+        {/* Liver score */}
+        <div className={styles.scoreField}>
+          <label>liver</label>
+          <input
+            className="field"
+            type="number"
+            placeholder="0"
+            value={opt.liver || ''}
+            onChange={e => onChange(index, {
+              ...opt,
+              liver: e.target.value === '' ? undefined : Number(e.target.value)
+            })}
+          />
+        </div>
+        {/* isTongueCoat toggle */}
+        <div className={styles.scoreField}>
+          <label>isTongueCoat</label>
+          <select
+            className="field"
+            value={opt.isTongueCoat ? 'true' : ''}
+            onChange={e => onChange(index, { ...opt, isTongueCoat: e.target.value === 'true' || undefined })}
+          >
+            <option value="">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+        {/* urgent toggle */}
+        <div className={styles.scoreField}>
+          <label>urgent</label>
+          <select
+            className="field"
+            value={opt.urgent ? 'true' : ''}
+            onChange={e => onChange(index, { ...opt, urgent: e.target.value === 'true' || undefined })}
+          >
+            <option value="">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+        {/* Flag — for medication options */}
+        <div className={styles.scoreField}>
+          <label>Flag</label>
+          <select
+            className="field"
+            value={opt.flag || ''}
+            onChange={e => onChange(index, { ...opt, flag: e.target.value || undefined })}
+          >
+            <option value="">— none —</option>
+            <option value="_IRON_SUPP">_IRON_SUPP</option>
+            <option value="_AYUR_MED">_AYUR_MED</option>
+            <option value="_PSYCH_MED">_PSYCH_MED</option>
+            <option value="_THYROID_MED">_THYROID_MED</option>
+            <option value="_HORMONAL">_HORMONAL</option>
+            <option value="_OCP">_OCP</option>
+          </select>
+        </div>
       </div>
       <button className={styles.optDelete} onClick={() => onDelete(index)}>
         <i className="ti ti-trash" />
@@ -229,13 +297,13 @@ export default function QuestionModal({ question = {}, assessmentType, onClose }
       setOptions(o => [...o, { label: '', dosha: 'Vata' }])
     } else if (assessmentType === 'PCOS') {
       setOptions(o => [...o, { t: '', k: '' }])
-    } else {
-      if (form.questionType === 'single') {
-        setOptions(o => [...o, { t: '', s: {} }])
-      } else {
-        setOptions(o => [...o, { t: '', k: '' }])
-      }
-    }
+   } else {
+  if (form.questionType === 'single') {
+    setOptions(o => [...o, { t: '' }])
+  } else {
+    setOptions(o => [...o, { t: '', k: '' }])
+  }
+}
   }
 
   const updateOption = (index, newOpt) => {

@@ -8,6 +8,8 @@ import UsersPage from './modules/users/UsersPage'
 import AssessmentsPage from './modules/users/AssessmentsPage'
 import ArticlesPage from './modules/articles/ArticlesPage'
 import PublishPage from './modules/articles/PublishPage'
+import IntroSlidesPage from './modules/intro/IntroSlidesPage'
+import OTPAdminPage from './modules/OTP/OTPAdminPage'
 
 import QuestionsPage from './modules/questions/QuestionsPage'
 
@@ -50,6 +52,8 @@ export default function App() {
             <Route path="/publish"     element={<PublishPage />} />
             <Route path="/publish/:id" element={<PublishPage />} />
             <Route path= "/questions" element={<QuestionsPage /> }/>
+            <Route path="/intro-slides" element={<IntroSlidesPage />} />
+            <Route path="/_OTP" element={<OTPAdminPage />} />
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

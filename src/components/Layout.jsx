@@ -24,6 +24,12 @@ const NAV = [
       { to: '/questions', icon: 'ti-list', label: 'Questions' },
     ],
   },
+  {
+  group: 'App Content',
+  items: [
+    { to: '/intro-slides', icon: 'ti-layout-cards', label: 'Intro Slides' },
+  ],
+},
 ]
 export function Sidebar() {
   const { theme, toggleTheme } = useThemeStore()

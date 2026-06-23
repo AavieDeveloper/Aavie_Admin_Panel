@@ -18,6 +18,9 @@ export default function QuestionsPage() {
   const toggleMutation  = useToggleQuestion()
   const deleteMutation  = useDeleteQuestion()
 
+  const activeQuestions   = questions.filter(q => q.isActive)
+  const inactiveQuestions = questions.filter(q => !q.isActive)
+
   const handleDelete = (q) => {
     if (!window.confirm(`Delete "${q.questionText}"?`)) return
     deleteMutation.mutate(q.id)
@@ -49,7 +52,7 @@ export default function QuestionsPage() {
           ))}
         </div>
 
-        <Panel
+       <Panel
           title={`${activeTab} Questions`}
           icon="ti-list"
           action="+ Add Question"
@@ -64,74 +67,40 @@ export default function QuestionsPage() {
             </div>
           )}
 
-          {!isLoading && questions.map((q, i) => (
-            <div key={q.id} className={[styles.qRow, !q.isActive ? styles.qRowInactive : ''].join(' ')}>
-              
-              {/* Order number */}
-              <div className={styles.qOrder}>{q.questionOrder ?? i + 1}</div>
-
-              {/* Question info */}
-              <div className={styles.qBody}>
-                <div className={styles.qMeta}>
-                  <span className={styles.qSection}>{q.section}</span>
-                  <span className={`tag ${q.questionType === 'single' ? 'tag-accent' : 'tag-amber'}`} style={{ fontSize: 9 }}>
-                    {q.questionType === 'single' ? 'Single choice' : 'Multi select'}
-                  </span>
-                  {!q.isActive && <span className="tag tag-muted" style={{ fontSize: 9 }}>Inactive</span>}
-                </div>
-                <div className={styles.qText}>{q.questionText}</div>
-                {q.subText && (
-                  <div className={styles.qSub}>{q.subText}</div>
-                )}
-                {/* Options preview */}
-                {q.optionsJson && (() => {
-                  try {
-                    const opts = JSON.parse(q.optionsJson)
-                    return (
-                      <div className={styles.qOpts}>
-                        {opts.slice(0, 3).map((o, oi) => (
-                          <span key={oi} className={styles.qOpt}>
-                            {o.label || o.t}
-                          </span>
-                        ))}
-                        {opts.length > 3 && (
-                          <span className={styles.qOpt}>+{opts.length - 3} more</span>
-                        )}
-                      </div>
-                    )
-                  } catch { return null }
-                })()}
-              </div>
-
-              {/* Actions */}
-              <div className={styles.qActions}>
-                <button
-                  className="btn btn-sm"
-                  style={{ fontSize: 10 }}
-                  onClick={() => setEditQuestion(q)}
-                >
-                  <i className="ti ti-edit" style={{ fontSize: 12 }} />
-                  Edit
-                </button>
-                <button
-                  className="btn btn-sm"
-                  style={{ fontSize: 10 }}
-                  onClick={() => toggleMutation.mutate(q.id)}
-                  title={q.isActive ? 'Deactivate' : 'Activate'}
-                >
-                  <i className={`ti ${q.isActive ? 'ti-eye-off' : 'ti-eye'}`} style={{ fontSize: 12 }} />
-                </button>
-                <button
-                  className="btn btn-sm"
-                  style={{ fontSize: 10, color: 'var(--rose)' }}
-                  onClick={() => handleDelete(q)}
-                >
-                  <i className="ti ti-trash" style={{ fontSize: 12 }} />
-                </button>
-              </div>
-            </div>
+          {!isLoading && activeQuestions.map((q, i) => (
+            <QuestionRow
+              key={q.id}
+              q={q}
+              i={i}
+              styles={styles}
+              onEdit={() => setEditQuestion(q)}
+              onToggle={() => toggleMutation.mutate(q.id)}
+              onDelete={() => handleDelete(q)}
+            />
           ))}
         </Panel>
+
+        {!isLoading && inactiveQuestions.length > 0 && (
+          <Panel
+            title={`Inactive ${activeTab} Questions`}
+            icon="ti-eye-off"
+          >
+            <div style={{ fontSize: 11, color: 'var(--tx3)', marginBottom: 12 }}>
+              These questions are not shown to users. Kept for historical reference — past user answers may reference these question IDs.
+            </div>
+            {inactiveQuestions.map((q, i) => (
+              <QuestionRow
+                key={q.id}
+                q={q}
+                i={i}
+                styles={styles}
+                onEdit={() => setEditQuestion(q)}
+                onToggle={() => toggleMutation.mutate(q.id)}
+                onDelete={() => handleDelete(q)}
+              />
+            ))}
+          </Panel>
+        )}
       </div>
 
       {/* Add/Edit Modal */}
@@ -142,6 +111,68 @@ export default function QuestionsPage() {
           onClose={() => setEditQuestion(null)}
         />
       )}
+    </div>
+  )
+}
+
+function QuestionRow({ q, i, styles, onEdit, onToggle, onDelete }) {
+  return (
+    <div className={[styles.qRow, !q.isActive ? styles.qRowInactive : ''].join(' ')}>
+
+      {/* Order number */}
+      <div className={styles.qOrder}>{q.questionOrder ?? i + 1}</div>
+
+      {/* Question info */}
+      <div className={styles.qBody}>
+        <div className={styles.qMeta}>
+          <span className={styles.qSection}>{q.section}</span>
+          <span className={`tag ${q.questionType === 'single' ? 'tag-accent' : 'tag-amber'}`} style={{ fontSize: 9 }}>
+            {q.questionType === 'single' ? 'Single choice' : 'Multi select'}
+          </span>
+          {!q.isActive && <span className="tag tag-muted" style={{ fontSize: 9 }}>Inactive</span>}
+        </div>
+        <div className={styles.qText}>{q.questionText}</div>
+        {q.subText && (
+          <div className={styles.qSub}>{q.subText}</div>
+        )}
+        {/* Options preview */}
+        {q.optionsJson && (() => {
+          try {
+            const opts = JSON.parse(q.optionsJson)
+            return (
+              <div className={styles.qOpts}>
+                {opts.slice(0, 3).map((o, oi) => (
+                  <span key={oi} className={styles.qOpt}>
+                    {o.label || o.t}
+                  </span>
+                ))}
+                {opts.length > 3 && (
+                  <span className={styles.qOpt}>+{opts.length - 3} more</span>
+                )}
+              </div>
+            )
+          } catch { return null }
+        })()}
+      </div>
+
+      {/* Actions */}
+      <div className={styles.qActions}>
+        <button className="btn btn-sm" style={{ fontSize: 10 }} onClick={onEdit}>
+          <i className="ti ti-edit" style={{ fontSize: 12 }} />
+          Edit
+        </button>
+        <button
+          className="btn btn-sm"
+          style={{ fontSize: 10 }}
+          onClick={onToggle}
+          title={q.isActive ? 'Deactivate' : 'Activate'}
+        >
+          <i className={`ti ${q.isActive ? 'ti-eye-off' : 'ti-eye'}`} style={{ fontSize: 12 }} />
+        </button>
+        <button className="btn btn-sm" style={{ fontSize: 10, color: 'var(--rose)' }} onClick={onDelete}>
+          <i className="ti ti-trash" style={{ fontSize: 12 }} />
+        </button>
+      </div>
     </div>
   )
 }

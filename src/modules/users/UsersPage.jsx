@@ -462,39 +462,76 @@ function UserDetailModal({ userId, onClose }) {
         }}>
           Herbs & Dosage
         </div>
-        <div style={{
-          background: 'var(--bg1)',
-          borderRadius: 8,
-          border: '1px solid var(--bd)',
-          padding: 10,
-          maxHeight: 200,
-          overflowY: 'auto',
-        }}>
-          {Array.isArray(formula) ? (
-            formula.map((herb, i) => (
-              <div key={i} style={{
-                padding: '6px 8px',
-                borderBottom: i < formula.length - 1 ? '1px solid var(--bd)' : 'none',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-                <span style={{ fontSize: 12, color: 'var(--tx0)', fontWeight: 500 }}>
-                  {/* Try multiple possible field names */}
-                  {herb.herb || herb.name || herb.herbName || herb.ingredient || JSON.stringify(herb)}
-                </span>
-                <span style={{ fontSize: 11, color: 'var(--tx2)' }}>
-                  {herb.qty || herb.dosage || herb.quantity || herb.amount || '—'}
-                </span>
-              </div>
-            ))
-          ) : (
-            <div style={{ fontSize: 11, color: 'var(--tx3)', padding: 8 }}>
-              <pre style={{ fontSize: 10, overflow: 'auto' }}>
-                {JSON.stringify(formula, null, 2)}
-              </pre>
-            </div>
+       <div style={{
+  background: 'var(--bg1)',
+  borderRadius: 8,
+  border: '1px solid var(--bd)',
+  padding: 10,
+  maxHeight: 300,
+  overflowY: 'scroll',
+  WebkitOverflowScrolling: 'touch',
+}}>
+        {Array.isArray(formula) ? (
+  formula.map((herb, i) => (
+    <div key={i} style={{
+      padding: '10px 12px',
+      borderBottom: i < formula.length - 1 ? '1px solid var(--bd)' : 'none',
+    }}>
+      {/* Herb name + role */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+        <span style={{ fontSize: 13, color: 'var(--tx0)', fontWeight: 600 }}>
+          {herb.h || herb.herb || herb.name || '—'}
+        </span>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {herb.r && (
+            <span className={`tag ${
+              herb.r === 'lead' ? 'tag-accent' :
+              herb.r === 'base' ? 'tag-sage' :
+              'tag-muted'
+            }`} style={{ fontSize: 8, padding: '2px 7px' }}>
+              {herb.r.toUpperCase()}
+            </span>
           )}
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)' }}>
+            {herb.fp ? `${herb.fp} mg` : herb.qty || herb.dosage || '—'}
+          </span>
+        </div>
+      </div>
+
+      {/* Function */}
+      {herb.fn && (
+        <div style={{ fontSize: 11, color: 'var(--tx2)', lineHeight: 1.5, marginBottom: 4 }}>
+          {herb.fn}
+        </div>
+      )}
+
+      {/* Timing + intensity */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {herb.ti && (
+          <span style={{ fontSize: 9, color: 'var(--tx3)', background: 'var(--bg2)', padding: '2px 8px', borderRadius: 4 }}>
+            ⏰ {herb.ti}
+          </span>
+        )}
+        {herb.intensity && (
+          <span style={{ fontSize: 9, color: 'var(--tx3)', background: 'var(--bg2)', padding: '2px 8px', borderRadius: 4 }}>
+            💊 {herb.intensity}
+          </span>
+        )}
+        {herb.jar && (
+          <span style={{ fontSize: 9, color: 'var(--tx3)', background: 'var(--bg2)', padding: '2px 8px', borderRadius: 4 }}>
+            🏺 Jar {herb.jar}
+          </span>
+        )}
+      </div>
+    </div>
+  ))
+) : (
+  <div style={{ fontSize: 11, color: 'var(--tx3)', padding: 8 }}>
+    <pre style={{ fontSize: 10, overflow: 'auto' }}>
+      {JSON.stringify(formula, null, 2)}
+    </pre>
+  </div>
+)}
         </div>
       </div>
     )
@@ -561,14 +598,34 @@ function UserDetailModal({ userId, onClose }) {
                 </div>
               </div>
 
-              {/* ── Close button ── */}
-              <button
-                className="btn"
-                onClick={onClose}
-                style={{ justifyContent: 'center', marginTop: 4 }}
-              >
-                Close
-              </button>
+<button
+  className="btn"
+  onClick={() => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${user.name || 'this user'}"?\n\nThis cannot be undone.`
+    );
+    if (!confirmed) return;
+    client.delete(`/api/admin/users/${user.id}`)
+      .then(() => { onClose(); window.location.reload(); })
+      .catch(() => alert('Failed to delete user.'));
+  }}
+  style={{
+    justifyContent: 'center', marginTop: 4,
+    color: 'var(--rose)', borderColor: 'var(--rose)',
+  }}
+>
+  <i className="ti ti-trash" style={{ marginRight: 6 }} />
+  Delete this user
+</button>
+
+<button
+  className="btn"
+  onClick={onClose}
+  style={{ justifyContent: 'center', marginTop: 4 }}
+>
+  Close
+</button>
+            
 
             </div>
           </>
@@ -636,6 +693,21 @@ const paginated  = filtered.slice(
   (currentPage - 1) * PAGE_SIZE,
   currentPage * PAGE_SIZE
 )
+
+const handleDeleteUser = async (userId, userName) => {
+  const confirmed = window.confirm(
+    `Are you sure you want to delete "${userName || 'this user'}"?\n\nThis will permanently delete the user and all their assessment data. This cannot be undone.`
+  );
+  
+  if (!confirmed) return;
+
+  try {
+    await client.delete(`/api/admin/users/${userId}`);
+    refetch();
+  } catch (err) {
+    alert('Failed to delete user. Please try again.');
+  }
+};
   return (
     <div className={styles.page}>
       <Topbar
@@ -732,7 +804,7 @@ const paginated  = filtered.slice(
 <th style={{ minWidth: 110 }}>Prakriti</th>
 <th style={{ minWidth: 121 }}>PCOS type</th>
 <th style={{ minWidth: 110 }}>Joined</th>
-<th style={{ minWidth: 100 }}>Action</th>
+<th style={{ minWidth: 80 }}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -753,16 +825,26 @@ const paginated  = filtered.slice(
                         <td><PrakritiTag value={u.prakritiResult} /></td>
                         <td><PcosTag    value={u.pcosResult}     /></td>
                         <td className={styles.dateCell}>{u.joinedAt || '—'}</td>
-                        <td>
-                          <button
-                            className="btn btn-sm"
-                            style={{ fontSize: 10 }}
-                            onClick={() => setSelectedUserId(u.id)}
-                          >
-                            <i className="ti ti-eye" style={{ fontSize: 12 }} />
-                            View
-                          </button>
-                        </td>
+                      <td>
+  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+    <button
+      className="btn btn-sm"
+      title="View user"
+      style={{ fontSize: 10, padding: '4px 8px' }}
+      onClick={() => setSelectedUserId(u.id)}
+    >
+      <i className="ti ti-eye" style={{ fontSize: 13 }} />
+    </button>
+    <button
+      className="btn btn-sm"
+      title="Delete user"
+      style={{ fontSize: 10, padding: '4px 8px', color: 'var(--rose)', borderColor: 'var(--rose)' }}
+      onClick={() => handleDeleteUser(u.id, u.name)}
+    >
+      <i className="ti ti-trash" style={{ fontSize: 13 }} />
+    </button>
+  </div>
+</td>
                       </tr>
                     ))}
                     {filtered.length === 0 && (
