@@ -24,10 +24,12 @@ const NAV = [
       { to: '/questions', icon: 'ti-list', label: 'Questions' },
     ],
   },
-  {
+  
+ {
   group: 'App Content',
   items: [
     { to: '/intro-slides', icon: 'ti-layout-cards', label: 'Intro Slides' },
+    { to: '/home-sections', icon: 'ti-home', label: 'Home Sections' },
   ],
 },
 ]
