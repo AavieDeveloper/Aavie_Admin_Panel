@@ -152,13 +152,17 @@ export default function IntroSlidesPage() {
   <div className={styles.field}>
     <label className={styles.lbl}>Eyebrow Color</label>
     <select
-      className="field"
-      value={editing.eyebrowColor || 'gold'}
-      onChange={e => setEditing({ ...editing, eyebrowColor: e.target.value })}
-    >
-      <option value="gold">Gold</option>
-      <option value="teal">Teal</option>
-    </select>
+  className="field"
+  value={editing.eyebrowColor || 'gold'}
+  onChange={e => setEditing({ ...editing, eyebrowColor: e.target.value })}
+>
+  <option value="gold">Gold</option>
+  <option value="teal">Teal</option>
+  <option value="white">White</option>
+  <option value="cream">Cream</option>
+  <option value="rose">Rose</option>
+  <option value="navy">Navy</option>
+</select>
   </div>
 
   <div className={styles.field}>
