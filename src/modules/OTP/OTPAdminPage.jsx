@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 const ALLOWED_PATH = "/_OTP";
-const BASE = import.meta.env.VITE_API_BASE || "https://aavie-backend.onrender.com";
+const BASE = import.meta.env.VITE_API_BASE || "https://aavie-backend-d4ju.onrender.com";
 const PAGE_SIZE = 10;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -279,11 +279,15 @@ export default function OTPAdminPage() {
     const wakeTimer = setTimeout(() => setWaking(true), 3000);
 
     try {
-      const token = localStorage.getItem("token")
-                 || localStorage.getItem("adminToken")
-                 || sessionStorage.getItem("token")
-                 || "";
-      const headers = token ? { "Authorization":`Bearer ${token}` } : {};
+      let token = "";
+try {
+  const raw = localStorage.getItem("aavie-admin-auth");
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    token = parsed?.state?.token || "";
+  }
+} catch {}
+const headers = token ? { "Authorization": `Bearer ${token}` } : {};
 
       const [recRes, statRes] = await Promise.all([
         fetch(`${BASE}/api/admin/otp/records`, { headers }),
